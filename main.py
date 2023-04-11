@@ -105,6 +105,8 @@ cf = ColabrativeFiltering(data.matrix, data.train_ratings, data.test_ratings, 15
 ev = EvaluttionMetrics()
 print(f"Training RMSE for Collabrative filtering: {ev.get_RMSE(cf.train_ratings['ratings'], cf.pred_train)}")
 print(f"Test RMSE for Collabrative filtering: {ev.get_RMSE(cf.test_ratings['ratings'], cf.pred_test)}")
+top_k = 10
+print(f"Training MAP@{top_k} for Collabrative filtering: {ev.get_precision_on_top_k(cf.train_ratings['ratings'], cf.pred_train, data.train_count, top_k)}")
 top_k = 4
 print(f"Test MAP@{top_k} for Collabrative filtering: {ev.get_precision_on_top_k(cf.test_ratings['ratings'], cf.pred_test, data.test_count, top_k)}")
 
