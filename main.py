@@ -42,6 +42,8 @@ class Dataset:
     def split_ratings(self, test_size=0.2):
         self.train_ratings, self.test_ratings = train_test_split(
             self.ratings, test_size=test_size, stratify=self.ratings['userid'])
+        print(len(self.train_ratings['movieid'].unique()))
+        print(len(self.test_ratings['movieid'].unique()))
         self.train_ratings.sort_values(by=['userid', 'ratings'], inplace=True)
         self.test_ratings.sort_values(by=['userid', 'ratings'], inplace=True)
         self.train_ratings = self.train_ratings.reset_index(drop=True)
@@ -84,6 +86,39 @@ class ColabrativeFiltering:
         print(
             f"Time taken to predict using Collabrative Filtering Test: {time() - t0} seconds")
 
+class CollaborativeWithBaseline(ColabrativeFiltering):
+    def __init__(self, matrix, train, test, k=10):
+        self.matrix = np.array(matrix)
+        self.k = k
+        self.train_ratings = train
+        self.test_ratings = test
+        self.bool_mat = np.where(self.matrix == 0, False, True)
+        self.find_global_mean()
+        self.find_user_deviation()
+        self.find_movie_deviation()
+        self.matrix = np.subtract(self.matrix, self.global_mean, where=self.bool_mat)
+        # print(self.matrix)
+        self.matrix = np.subtract(self.matrix, self.movie_deviation, where=self.bool_mat)
+        # print(self.matrix)
+        self.get_top_k_users()
+        self.get_results()
+
+    def find_global_mean(self):
+        self.global_mean = np.mean(self.matrix, where=self.bool_mat)
+        print(self.global_mean)
+
+    def find_user_deviation(self):
+        self.user_deviation = np.mean(self.matrix, where= self.bool_mat, axis=1) - self.global_mean
+
+    def find_movie_deviation(self):
+        self.movie_deviation = np.nanmean(self.matrix, where=self.bool_mat, axis=0) - self.global_mean
+ 
+    def get_rating(self, userid, movieid):
+        rating = np.average(self.matrix[self.top_k_users[userid - 1], movieid - 1].reshape(
+            self.k,), weights=self.top_k_sim[userid - 1])
+        return rating + self.global_mean + self.movie_deviation[movieid - 1]
+    
+    
 
 class EvaluttionMetrics:
     def __init__(self) -> None:
@@ -124,49 +159,11 @@ class EvaluttionMetrics:
 # top_k = 4
 # print(
 #     f"Test MAP@{top_k} for Collabrative filtering: {ev.get_precision_on_top_k(cf.test_ratings['ratings'], cf.pred_test, data.test_count, top_k)}")
-
-
-class CollaborativeWithBaseline:
-    def __init__(self, matrix, k=10):
-        self.matrix = matrix
-        self.k = k
-        self.find_global_mean()
-        self.find_user_deviation()
-        self.find_movie_deviation()
-        self.matrix = self.matrix - self.global_mean - self.movie_deviation
-
-    def find_global_mean(self):
-        matrix = np.array(self.matrix)
-        masked_matrix = np.ma.masked_equal(matrix, 0)
-        self.global_mean = np.mean(masked_matrix)
-        self.gmean = np.zeros_like(matrix)
-        self.gmean = np.ones_like(self.matrix)
-        self.gmean = self.gmean[self.matrix != 0]
-        print(self.matrix)
-        print(self.gmean)
-
-        print(self.global_mean)
-
-    def find_user_deviation(self):
-        self.user_deviation = np.mean(
-            self.matrix, where=self.matrix != 0, axis=1) - self.global_mean
-        print(self.user_deviation)
-
-    def find_movie_deviation(self):
-        self.movie_deviation = np.mean(
-            self.matrix, where=self.matrix != 0, axis=0) - self.global_mean
-        # arr = np.array(self.matrix)
-        # non_zero_values = arr[arr != 0]
-        # self.movie_deviation = np.mean(
-        #     non_zero_values, axis=1) - self.global_mean
-        # # return movie_deviation
-
-    def predict_rating(self, userid, movieid):
-        return self.global_mean+self.user_deviation[userid-1]+self.movie_deviation[movieid-1]
-
-
-matrix = [[4, 0, 3, 5], [0, 5, 4, 0], [5, 4, 2, 0], [2, 4, 0, 3], [3, 4, 5, 0]]
-userid = 0
-movieid = 0
-obj = CollaborativeWithBaseline(matrix)
-print(obj.predict_rating(userid, movieid))
+if __name__ == "__main__":
+    data = Dataset()
+    cfb = CollaborativeWithBaseline(data.matrix, data.train_ratings, data.test_ratings, 15)
+    ev = EvaluttionMetrics()
+    print(
+        f"Training RMSE for Collabrative filtering with Baseline: {ev.get_RMSE(cfb.train_ratings['ratings'], cfb.pred_train)}")
+    print(
+        f"Test RMSE for Collabrative filtering with Baseline: {ev.get_RMSE(cfb.test_ratings['ratings'], cfb.pred_test)}")
