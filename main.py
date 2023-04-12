@@ -15,6 +15,12 @@ class Dataset:
 
         t0 = time()
         self.split_ratings()
+        # self.test_count = self.test_ratings.groupby(['userid', 'ratings'], as_index = False).size().reset_index(drop = True).reset_index(drop = True)
+        # self.test_count.sort_values(by=['userid', 'ratings'], ascending = [True, False], inplace = True)
+        # self.train_count = self.train_ratings.groupby(['userid', 'ratings'], as_index = False).size().reset_index(drop = True).reset_index(drop = True)
+        # self.train_count.sort_values(by=['userid', 'ratings'], ascending = [True, False], inplace = True)
+        # self.rtc_test = self.test_count.groupby(['userid'])['userid'].count()
+        # self.rtc_train = self.train_count.groupby(['userid'])['userid'].count()
         self.test_count = self.test_ratings.groupby(['userid'])[
             'userid'].count()
         self.train_count = self.train_ratings.groupby(['userid'])[
@@ -44,8 +50,8 @@ class Dataset:
             self.ratings, test_size=test_size, stratify=self.ratings['userid'])
         print(len(self.train_ratings['movieid'].unique()))
         print(len(self.test_ratings['movieid'].unique()))
-        self.train_ratings.sort_values(by=['userid', 'ratings'], inplace=True)
-        self.test_ratings.sort_values(by=['userid', 'ratings'], inplace=True)
+        self.train_ratings.sort_values(by=['userid', 'ratings'], ascending = [True, False], inplace=True)
+        self.test_ratings.sort_values(by=['userid', 'ratings'], ascending = [True, False],inplace=True)
         self.train_ratings = self.train_ratings.reset_index(drop=True)
         self.test_ratings = self.test_ratings.reset_index(drop=True)
         # self.train_ratings.to_csv('dataset/train_ratings.csv')
@@ -112,7 +118,8 @@ class CollaborativeWithBaseline(ColabrativeFiltering):
 
     def find_movie_deviation(self):
         self.movie_deviation = np.nanmean(self.matrix, where=self.bool_mat, axis=0) - self.global_mean
- 
+        np.nan_to_num(self.movie_deviation, copy=False)
+    
     def get_rating(self, userid, movieid):
         rating = np.average(self.matrix[self.top_k_users[userid - 1], movieid - 1].reshape(
             self.k,), weights=self.top_k_sim[userid - 1])
@@ -161,8 +168,17 @@ class EvaluttionMetrics:
 #     f"Test MAP@{top_k} for Collabrative filtering: {ev.get_precision_on_top_k(cf.test_ratings['ratings'], cf.pred_test, data.test_count, top_k)}")
 if __name__ == "__main__":
     data = Dataset()
-    cfb = CollaborativeWithBaseline(data.matrix, data.train_ratings, data.test_ratings, 15)
     ev = EvaluttionMetrics()
+    
+    print("======== Collabrative filtering =========")
+    cf = ColabrativeFiltering(data.matrix, data.train_ratings, data.test_ratings, 15)
+    print(
+    f"Training RMSE for Collabrative filtering: {ev.get_RMSE(cf.train_ratings['ratings'], cf.pred_train)}")
+    print(
+    f"Test RMSE for Collabrative filtering: {ev.get_RMSE(cf.test_ratings['ratings'], cf.pred_test)}")
+    
+    print("================= Collabrative filtering with Baseline ==================")
+    cfb = CollaborativeWithBaseline(data.matrix, data.train_ratings, data.test_ratings, 15)
     print(
         f"Training RMSE for Collabrative filtering with Baseline: {ev.get_RMSE(cfb.train_ratings['ratings'], cfb.pred_train)}")
     print(
