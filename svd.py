@@ -14,7 +14,8 @@ class SVD:
         print(self.U.shape, self.S.shape, self.V.shape)
     
         t0 = time()
-        self.ans = np.matmul(self.U, np.matmul(np.diag(self.S), self.V.T))
+        # self.ans = np.matmul(self.U, np.matmul(np.diag(self.S), self.V.T))
+        self.ans = (self.U * self.S[..., None, :]) @ self.V
         print(f"Time taken to do Multiplication: {time() - t0} seconds")
         self.get_results()
         
