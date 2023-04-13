@@ -90,6 +90,21 @@ if __name__ == "__main__":
     print(
         f"Test RMSE for Collabrative filtering: {ev.get_RMSE(cf.test_ratings['ratings'], cf.pred_test)}")
 
+    pred_test_df = pd.DataFrame()
+    pred_test_df['movieid'] = cf.test_ratings['movieid']
+    pred_test_df['userid'] = cf.test_ratings['userid']
+    pred_test_df['ratings'] = cf.pred_test
+
+    pred_train_df = pd.DataFrame()
+    pred_train_df['movieid'] = cf.train_ratings['movieid']
+    pred_train_df['userid'] = cf.train_ratings['userid']
+    pred_train_df['ratings'] = cf.pred_train
+
+    print(
+        f"Training precision on topk: {ev.get_precision_on_top_k(cf.train_ratings, pred_train_df, 4)}")
+    print(
+        f"Test precision on topk: {ev.get_precision_on_top_k(cf.test_ratings, pred_test_df, 4)}")
+
     print("================= Collabrative filtering with Baseline ==================")
     cfb = CollaborativeWithBaseline(
         data.matrix, data.train_ratings, data.test_ratings, 15)
