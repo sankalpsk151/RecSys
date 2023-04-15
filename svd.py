@@ -46,10 +46,11 @@ class SVDRetention(SVD):
         
         
     def retain_k(self, k):
-        total = np.sum(self.S)*k
+        total = np.sum(np.square(self.S))*k
         rf = len(self.S)
-        for i in range(0,len(self.S), -1):
-            if np.sum(self.S[:i]) < total:
+        for i in range(0,len(self.S)):
+            if np.sum(np.square(self.S[:i])) > total:
+                print(f"Retained {i} features")
                 rf = i
                 break
         self.U = self.U[:, :rf]
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     print("======== SVD with Retention =========")
     svd_ret = SVDRetention(svd.U, svd.V, svd.S, data.train_ratings, data.test_ratings, 0.9)
     print(
-    f"Training RMSE : {ev.get_RMSE(svd.train['ratings'], svd.pred_train)}")
+    f"Training RMSE : {ev.get_RMSE(svd_ret.train['ratings'], svd_ret.pred_train)}")
     print(
-    f"Test RMSE : {ev.get_RMSE(svd.test['ratings'], svd.pred_test)}")
+    f"Test RMSE : {ev.get_RMSE(svd_ret.test['ratings'], svd_ret.pred_test)}")
     

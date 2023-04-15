@@ -95,7 +95,10 @@ class CUR:
         return self.C, self.R, W
 
     def decompose(self):
-        C, R, W = self.get_C_R_W(int(self.A.shape[0]/10))
+        C, R, W = self.get_C_R_W(int(self.A.shape[0]))
+        print(C)
+        print(R)
+        print(W)
         U = np.linalg.pinv(W)
         self.U = U
         self.cur_approx = np.matmul(np.matmul(C, U), R)
@@ -119,10 +122,11 @@ class CUR:
         self.W = np.diag(middle_diagonal)
 
 
-ds = Dataset()
-matrix = ds.matrix_np
+# ds = Dataset()
+# matrix = ds.matrix_np
 
 start = timer()
+matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 cur = CUR(matrix)
 cur.decompose()
 end = timer()
@@ -133,7 +137,7 @@ print(cur_approx.shape)
 print(cur_approx)
 print(cur_approx[-1].mean())
 
-ds.print_metrics(cur_approx)
+# ds.print_metrics(cur_approx)
 
 # print("U", cur.U)
 # print("Multiplied is", cur_approx)
