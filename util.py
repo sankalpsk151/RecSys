@@ -47,8 +47,8 @@ class Dataset:
     def split_ratings(self, test_size=0.2):
         self.train_ratings, self.test_ratings = train_test_split(
             self.ratings, test_size=test_size, stratify=self.ratings['userid'])
-        print(len(self.train_ratings['movieid'].unique()))
-        print(len(self.test_ratings['movieid'].unique()))
+        # print(len(self.train_ratings['movieid'].unique()))
+        # print(len(self.test_ratings['movieid'].unique()))
         self.train_ratings.sort_values(by=['userid', 'ratings'], ascending=[
                                        True, False], inplace=True)
         self.test_ratings.sort_values(by=['userid', 'ratings'], ascending=[
@@ -67,19 +67,20 @@ class EvaluttionMetrics:
         return np.sqrt(np.mean((y - y_pred)**2))
 
     def get_precision_on_top_k(self, y, y_pred, top_k):
-        y_pred.sort_values(by=['userid', 'ratings'])
+        y_pred.sort_values(by=['userid', 'ratings'], ascending=[True, False])
+        y.sort_values(by=['userid', 'ratings'], ascending=[True, False])
         prec_arr = np.empty(6040)  # np.array([])
         for userid in range(1, (6040+1)):
             # print(f"userid {userid}")
-            userid_ratings = y[y['userid'] == userid].reset_index(drop=True)
+            userid_ratings = y[y['userid'] == userid].reset_index(drop=True).sort_values(by=['ratings'], ascending=[False])
             # print(userid_ratings['ratings'])
             top_kth_rating = userid_ratings.at[top_k-1, 'ratings']
             # print(top_kth_rating)
-            val3 = userid_ratings[userid_ratings['ratings'] == top_kth_rating]
-            s1 = set(userid_ratings['movieid'][:top_k])
+            val3 = userid_ratings[userid_ratings['ratings'] == top_kth_rating].reset_index(drop=True)
+            s1 = set(userid_ratings['movieid'].iloc[:top_k])
             set_of_movies = s1.union(set(val3['movieid']))
-            pred_set_of_movies = set(
-                y_pred[y_pred['userid'] == userid]['movieid'][:top_k])
+            val4 = y_pred[y_pred['userid'] == userid].reset_index(drop=True).sort_values(by=['ratings'], ascending=[False])
+            pred_set_of_movies = set(val4['movieid'].iloc[:top_k])
             z = len(set_of_movies.intersection(pred_set_of_movies))
             prec_arr[userid - 1] = z/top_k
 

@@ -31,13 +31,13 @@ class ColabrativeFiltering:
         self.pred_train = [self.get_rating(i, j) for i, j in zip(
             self.train_ratings['userid'], self.train_ratings['movieid'])]
         print(
-            f"Time taken to predict using Collabrative Filtering Train: {time() - t0} seconds")
+            f"Prediction Time Train: {time() - t0} seconds")
 
         t0 = time()
         self.pred_test = [self.get_rating(i, j) for i, j in zip(
             self.test_ratings['userid'], self.test_ratings['movieid'])]
         print(
-            f"Time taken to predict using Collabrative Filtering Test: {time() - t0} seconds")
+            f"TPrediction Time Test: {time() - t0} seconds")
 
 
 class CollaborativeWithBaseline(ColabrativeFiltering):
@@ -52,16 +52,14 @@ class CollaborativeWithBaseline(ColabrativeFiltering):
         self.find_movie_deviation()
         self.matrix = np.subtract(
             self.matrix, self.global_mean, where=self.bool_mat)
-        # print(self.matrix)
         self.matrix = np.subtract(
             self.matrix, self.movie_deviation, where=self.bool_mat)
-        # print(self.matrix)
         self.get_top_k_users()
         self.get_results()
 
     def find_global_mean(self):
         self.global_mean = np.mean(self.matrix, where=self.bool_mat)
-        print(self.global_mean)
+        # print(self.global_mean)
 
     def find_user_deviation(self):
         self.user_deviation = np.mean(
@@ -86,9 +84,9 @@ if __name__ == "__main__":
     cf = ColabrativeFiltering(
         data.matrix, data.train_ratings, data.test_ratings, 15)
     print(
-        f"Training RMSE for Collabrative filtering: {ev.get_RMSE(cf.train_ratings['ratings'], cf.pred_train)}")
+        f"Training RMSE : {ev.get_RMSE(cf.train_ratings['ratings'], cf.pred_train)}")
     print(
-        f"Test RMSE for Collabrative filtering: {ev.get_RMSE(cf.test_ratings['ratings'], cf.pred_test)}")
+        f"Test RMSE : {ev.get_RMSE(cf.test_ratings['ratings'], cf.pred_test)}")
 
     pred_test_df = pd.DataFrame()
     pred_test_df['movieid'] = cf.test_ratings['movieid']
@@ -100,18 +98,35 @@ if __name__ == "__main__":
     pred_train_df['userid'] = cf.train_ratings['userid']
     pred_train_df['ratings'] = cf.pred_train
 
+    topk = 4
     print(
-        f"Training precision on topk: {ev.get_precision_on_top_k(cf.train_ratings, pred_train_df, 4)}")
+        f"Training precision on top {topk}: {ev.get_precision_on_top_k(cf.train_ratings, pred_train_df, topk)}")
     print(
-        f"Test precision on topk: {ev.get_precision_on_top_k(cf.test_ratings, pred_test_df, 4)}")
+        f"Test precision on top {topk}: {ev.get_precision_on_top_k(cf.test_ratings, pred_test_df, topk)}")
 
     print("================= Collabrative filtering with Baseline ==================")
     cfb = CollaborativeWithBaseline(
         data.matrix, data.train_ratings, data.test_ratings, 15)
+    
     print(
-        f"Training RMSE for Collabrative filtering with Baseline: {ev.get_RMSE(cfb.train_ratings['ratings'], cfb.pred_train)}")
+        f"Training RMSE : {ev.get_RMSE(cfb.train_ratings['ratings'], cfb.pred_train)}")
     print(
-        f"Test RMSE for Collabrative filtering with Baseline: {ev.get_RMSE(cfb.test_ratings['ratings'], cfb.pred_test)}")
+        f"Test RMSE : {ev.get_RMSE(cfb.test_ratings['ratings'], cfb.pred_test)}")
+    
+    pred_test_df2 = pd.DataFrame()
+    pred_test_df2['movieid'] = cfb.test_ratings['movieid']
+    pred_test_df2['userid'] = cfb.test_ratings['userid']
+    pred_test_df2['ratings'] = cfb.pred_test
+
+    pred_train_df2 = pd.DataFrame()
+    pred_train_df2['movieid'] = cfb.train_ratings['movieid']
+    pred_train_df2['userid'] = cfb.train_ratings['userid']
+    pred_train_df2['ratings'] = cfb.pred_train
+
+    print(
+        f"Training precision on top{topk}: {ev.get_precision_on_top_k(cfb.train_ratings, pred_train_df2, topk)}")
+    print(
+        f"Test precision on top{topk}: {ev.get_precision_on_top_k(cfb.test_ratings, pred_test_df2, topk)}")
 
 
 # top_k = 10
