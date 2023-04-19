@@ -15,6 +15,10 @@ class ColabrativeFiltering:
         self.get_results()
 
     def get_top_k_users(self):
+        """Extract top k similar users for all users
+        top_k_users (users * k) matrix: Contains indices of top k similar users in every row
+        top_k_sim (users * k) matrix: The similarity value for each user with their top k similar users
+        """
         row_sums = np.linalg.norm(self.matrix, axis=1)
         sim_mat = np.matmul(self.matrix, self.matrix.T) / \
             np.matmul(row_sums[:, np.newaxis], row_sums[:, np.newaxis].T)
@@ -22,11 +26,18 @@ class ColabrativeFiltering:
         self.top_k_sim = np.take_along_axis(sim_mat, self.top_k_users, axis=1)
 
     def get_rating(self, userid, movieid):
+        """Get the rating for a user and movie
+
+        Finds the average ratings among the top k users of 'userid' for the given 'movieid' 
+        Returns:
+        rating (int)
+        """
         rating = np.average(self.matrix[self.top_k_users[userid - 1], movieid - 1].reshape(
             self.k,), weights=self.top_k_sim[userid - 1])
         return rating
 
     def get_results(self):
+        """Calculate predicted ratings for train and test data"""
         t0 = time()
         self.pred_train = [self.get_rating(i, j) for i, j in zip(
             self.train_ratings['userid'], self.train_ratings['movieid'])]
@@ -99,20 +110,27 @@ if __name__ == "__main__":
     pred_train_df['ratings'] = cf.pred_train
 
     topk = 4
+    print("Spearman is ", ev.spearman_coef(
+        cf.train_ratings, pred_train_df))
+    print("Spearman testing is ", ev.spearman_coef(
+        cf.test_ratings, pred_test_df))
+    # print(
+    #     f"Train precision new on top{topk}: {ev.precision_top_k(cf.train_ratings, pred_train_df, topk)}")
+
     print(
         f"Training precision on top {topk}: {ev.get_precision_on_top_k(cf.train_ratings, pred_train_df, topk)}")
     print(
-        f"Test precision on top {topk}: {ev.get_precision_on_top_k(cf.test_ratings, pred_test_df, topk)}")
+        f"Test precision on top {topk}: {ev.precision_top_k(cf.test_ratings, pred_test_df, topk)}")
 
     print("================= Collabrative filtering with Baseline ==================")
     cfb = CollaborativeWithBaseline(
         data.matrix, data.train_ratings, data.test_ratings, 15)
-    
+
     print(
         f"Training RMSE : {ev.get_RMSE(cfb.train_ratings['ratings'], cfb.pred_train)}")
     print(
         f"Test RMSE : {ev.get_RMSE(cfb.test_ratings['ratings'], cfb.pred_test)}")
-    
+
     pred_test_df2 = pd.DataFrame()
     pred_test_df2['movieid'] = cfb.test_ratings['movieid']
     pred_test_df2['userid'] = cfb.test_ratings['userid']
@@ -123,10 +141,19 @@ if __name__ == "__main__":
     pred_train_df2['userid'] = cfb.train_ratings['userid']
     pred_train_df2['ratings'] = cfb.pred_train
 
+    print("Spearman is ", ev.spearman_coef(
+        cf.train_ratings, pred_train_df2))
+    print("Spearman testing is ", ev.spearman_coef(
+        cf.test_ratings, pred_test_df2))
+
+    # print(
+    #     f"Training precision on top{topk}: {ev.get_precision_on_top_k(cfb.train_ratings, pred_train_df2, topk)}")
+    # print(
+    #     f"Test precision on top{topk}: {ev.get_precision_on_top_k(cfb.test_ratings, pred_test_df2, topk)}")
     print(
-        f"Training precision on top{topk}: {ev.get_precision_on_top_k(cfb.train_ratings, pred_train_df2, topk)}")
+        f"Test precision new on top{topk}: {ev.precision_top_k(cfb.test_ratings, pred_test_df2, topk)}")
     print(
-        f"Test precision on top{topk}: {ev.get_precision_on_top_k(cfb.test_ratings, pred_test_df2, topk)}")
+        f"Train precision new on top{topk}: {ev.precision_top_k(cfb.train_ratings, pred_test_df2, topk)}")
 
 
 # top_k = 10

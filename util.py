@@ -69,17 +69,22 @@ class EvaluttionMetrics:
     def get_precision_on_top_k(self, y, y_pred, top_k):
         y_pred.sort_values(by=['userid', 'ratings'], ascending=[True, False])
         y.sort_values(by=['userid', 'ratings'], ascending=[True, False])
+        print("y_pred:\n", y_pred)
+        print(y)
         prec_arr = np.empty(6040)  # np.array([])
         for userid in range(1, (6040+1)):
             # print(f"userid {userid}")
-            userid_ratings = y[y['userid'] == userid].reset_index(drop=True).sort_values(by=['ratings'], ascending=[False])
+            userid_ratings = y[y['userid'] == userid].reset_index(
+                drop=True).sort_values(by=['ratings'], ascending=[False])
             # print(userid_ratings['ratings'])
             top_kth_rating = userid_ratings.at[top_k-1, 'ratings']
             # print(top_kth_rating)
-            val3 = userid_ratings[userid_ratings['ratings'] == top_kth_rating].reset_index(drop=True)
+            val3 = userid_ratings[userid_ratings['ratings']
+                                  == top_kth_rating].reset_index(drop=True)
             s1 = set(userid_ratings['movieid'].iloc[:top_k])
             set_of_movies = s1.union(set(val3['movieid']))
-            val4 = y_pred[y_pred['userid'] == userid].reset_index(drop=True).sort_values(by=['ratings'], ascending=[False])
+            val4 = y_pred[y_pred['userid'] == userid].reset_index(
+                drop=True).sort_values(by=['ratings'], ascending=[False])
             pred_set_of_movies = set(val4['movieid'].iloc[:top_k])
             z = len(set_of_movies.intersection(pred_set_of_movies))
             prec_arr[userid - 1] = z/top_k
@@ -93,11 +98,93 @@ class EvaluttionMetrics:
         #     x += movie_count
         # return map_k / (len(count) * top_k)
 
-    def get_spearman_rank(y, y_pred):
-        n = len(y)
-        rank_x = {value: i for i, value in enumerate(sorted((y)), 1)}
-        rank_y = {value: i for i, value in enumerate(sorted((y_pred)), 1)}
-        rank_x = [rank_x[value] for value in y]
-        rank_y = [rank_y[value] for value in y_pred]
-        d = [(rank_x[i] - rank_y[i])**2 for i in range(n)]
-        return 1 - (6 * sum(d)) / (n * (n**2 - 1))
+    def precision_top_k(self, y, y_pred, k):
+        """Calculates precision at top k for predictions
+
+        Tkaes average of precision for all users.
+        """
+        def is_relevant(rating):
+            return rating > 3
+        print("Calculating precision\n")
+        y_pred.sort_values(by=['userid', 'ratings'], ascending=[True, False])
+        y.sort_values(by=['userid', 'ratings'], ascending=[True, False])
+        # print(y_pred)
+        # print(y)
+        precisions_total = 0
+        for userid in range(1, (6040+1)):
+            ratings = y[y['userid'] == userid].reset_index(
+                drop=True).sort_values(by=['ratings'], ascending=[False])
+            pred_ratings = y_pred[y_pred['userid'] == userid].reset_index(
+                drop=True).sort_values(by=['ratings'], ascending=[False])
+            local_correct = 0
+            for i in range(k):
+                if is_relevant(pred_ratings.iloc[i]['ratings']) and is_relevant(ratings.iloc[i]['ratings']):
+                    local_correct += 1
+            precisions_total += local_correct / k
+        return precisions_total / 6040
+
+    def spearman_coef(self, y, y_pred):
+        """Finds the average spearman coefficient over all users
+
+        Parameters:
+        y (numpy vector): Ratings
+        y_pred (numpy vector): Predicted Ratings
+
+        Returns:
+        spearman_coefficient (float) : Between -1 and 1        
+        """
+        total_coef = 0
+        for userid in range(1, (6040+1)):
+            ratings = y[y['userid'] == userid].reset_index(
+                drop=True).sort_values(by=['ratings'], ascending=[False])
+            pred_ratings = y_pred[y_pred['userid'] == userid].reset_index(
+                drop=True).sort_values(by=['ratings'], ascending=[False])
+            total_coef += spearman_with_ties(
+                np.array(ratings['ratings']), np.array(pred_ratings['ratings']))
+        return total_coef / 6040
+
+
+def spearman_with_ties(x, y):
+    """
+    Calculates Spearman's rank correlation coefficient with ties for two arrays x and y.
+
+    """
+    n = len(x)
+
+    ranks_x = np.argsort(np.argsort(x)) + 1  # Assign ranks to x
+    ranks_y = np.argsort(np.argsort(y)) + 1  # Assign ranks to y
+    ranks_x = ranks_x.astype(float)
+    ranks_y = ranks_y.astype(float)
+
+    # Calculate the average ranks for tied values
+    unique_x, counts_x = np.unique(x, return_counts=True)
+
+    for i in range(len(unique_x)):
+        val = unique_x[i]
+        if counts_x[i] > 1:
+            tied_ranks = ranks_x[x == val]
+            avg_rank = np.mean(tied_ranks)
+            ranks_x[x == val] = avg_rank
+
+    unique_y, counts_y = np.unique(y, return_counts=True)
+    for i in range(len(unique_y)):
+        val = unique_y[i]
+        if counts_y[i] > 1:
+            tied_ranks = ranks_y[y == val]
+            # print(tied_ranks)
+            avg_rank = np.mean(tied_ranks)
+            # print(avg_rank)
+            ranks_y[y == val] = avg_rank
+            # print(ranks_y[y == val])
+
+    # print(ranks_x.shape)
+
+    # Calculate the differences between ranks
+    rank_diffs = ranks_x - ranks_y
+    rank_diffs_squared = rank_diffs ** 2
+
+    # Calculate Spearman's rank correlation coefficient
+    sum_rank_diffs_squared = np.sum(rank_diffs_squared, where=(x != 0))
+    spearman_coefficient = 1 - (6 * sum_rank_diffs_squared) / (n * (n**2 - 1))
+
+    return spearman_coefficient

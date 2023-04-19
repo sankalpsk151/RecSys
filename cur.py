@@ -46,19 +46,19 @@ def CUR_decomposition(A):
     return C, U, R
 
 
-train_matrix = pd.read_csv("dataset/matrix.csv")
-train_matrix = train_matrix.drop('Unnamed: 0', axis=1)
+# train_matrix = pd.read_csv("dataset/matrix.csv")
+# train_matrix = train_matrix.drop('Unnamed: 0', axis=1)
 # print(train_matrix.head())
 
 # Convert to numpy array
-train_matrix = train_matrix.values
-A = np.array(train_matrix)
-C, U, R = CUR_decomposition(A)
-prediction_matrix = C @ U @ R
+# train_matrix = train_matrix.values
+# A = np.array(train_matrix)
+# C, U, R = CUR_decomposition(A)
+# prediction_matrix = C @ U @ R
+# # print(prediction_matrix)
+# # Save the prediction matrix
+# np.savetxt("dataset/prediction_matrix.csv", prediction_matrix, delimiter=",")
 # print(prediction_matrix)
-# Save the prediction matrix
-np.savetxt("dataset/prediction_matrix.csv", prediction_matrix, delimiter=",")
-print(prediction_matrix)
 
 # df = pd.io.parsers.read_csv('dataset/ratings.dat', names=[
 #                             'userid', 'movieid', 'ratings', 'time'], encoding='latin-1', engine='python', delimiter='::')
@@ -71,10 +71,10 @@ print(prediction_matrix)
 # print(len(unique_users), len(unique_movies))
 
 
-def create_matrix():
+def create_matrix(filepath="dataset/train_ratings.csv", dest="dataset/matrix.csv"):
     df = pd.io.parsers.read_csv('dataset/ratings.dat', names=[
                                 'userid', 'movieid', 'ratings', 'time'], encoding='latin-1', engine='python', delimiter='::')
-    train_df = pd.read_csv("dataset/train_ratings.csv")
+    train_df = pd.read_csv(filepath)
     unique_users = df['userid'].unique()
     unique_movies = df['movieid'].unique()
 
@@ -87,8 +87,8 @@ def create_matrix():
     # Fill the NaN values with 0
     matrix.fillna(value=0, inplace=True)
     # Save the matrix
-    matrix.to_csv("dataset/matrix.csv")
+    matrix.to_csv("dataset/matrix_test.csv")
     print(matrix)
 
     # 6040, 3685
-# create_matrix()
+create_matrix("dataset/test_ratings.csv", "dataset/matrix_test.csv")

@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module CUR_all</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>CUR_all</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/mirasma/Main/Projects/Academics/RecSys/CUR_all.py">/home/mirasma/Main/Projects/Academics/RecSys/CUR_all.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="pandas.html">pandas</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="CUR_all.html#CUR">CUR</a>
+</font></dt><dt><font face="helvetica, arial"><a href="CUR_all.html#Dataset">Dataset</a>
+</font></dt><dt><font face="helvetica, arial"><a href="CUR_all.html#SVD">SVD</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="CUR">class <strong>CUR</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#CUR">CUR</a>(matrix)<br>
+&nbsp;<br>
+Class&nbsp;for&nbsp;<a href="#CUR">CUR</a>&nbsp;decomposition<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="CUR-__init__"><strong>__init__</strong></a>(self, matrix)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="CUR-decompose"><strong>decompose</strong></a>(self)</dt><dd><tt>Performs&nbsp;<a href="#CUR">CUR</a>&nbsp;decomposition<br>
+Returns:&nbsp;<br>
+Approximate&nbsp;matrix&nbsp;after&nbsp;decomposition</tt></dd></dl>
+
+<dl><dt><a name="CUR-decompose90"><strong>decompose90</strong></a>(self)</dt><dd><tt>Performs&nbsp;<a href="#CUR">CUR</a>&nbsp;decomposition&nbsp;by&nbsp;retaining&nbsp;90%&nbsp;energy<br>
+Returns:&nbsp;<br>
+Approximate&nbsp;matrix&nbsp;after&nbsp;decomposition</tt></dd></dl>
+
+<dl><dt><a name="CUR-get_C_R_W"><strong>get_C_R_W</strong></a>(self, r)</dt><dd><tt>Construct&nbsp;C,&nbsp;R,&nbsp;W&nbsp;matrices<br>
+&nbsp;<br>
+Parameters:<br>
+r&nbsp;(int)&nbsp;:&nbsp;Number&nbsp;of&nbsp;columns&nbsp;and&nbsp;rows&nbsp;to&nbsp;select&nbsp;randomnly<br>
+&nbsp;<br>
+Returns:<br>
+C&nbsp;:&nbsp;r&nbsp;randomly&nbsp;picked&nbsp;columns&nbsp;and&nbsp;scaled&nbsp;according&nbsp;to&nbsp;probabilities&nbsp;<br>
+R&nbsp;:&nbsp;r&nbsp;randomly&nbsp;picked&nbsp;rows&nbsp;and&nbsp;scaled&nbsp;according&nbsp;to&nbsp;probabilities<br>
+W&nbsp;:&nbsp;Intersection&nbsp;of&nbsp;C&nbsp;and&nbsp;R</tt></dd></dl>
+
+<dl><dt><a name="CUR-get_probabilities"><strong>get_probabilities</strong></a>(self)</dt><dd><tt>Calcualtes&nbsp;the&nbsp;probabilities&nbsp;of&nbsp;selecting&nbsp;rows&nbsp;and&nbsp;columns<br>
+&nbsp;<br>
+Returns:<br>
+row&nbsp;and&nbsp;column&nbsp;probabilities</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Dataset">class <strong>Dataset</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Holds&nbsp;the&nbsp;training&nbsp;and&nbsp;testing&nbsp;datasets<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Dataset-RMSE_testing"><strong>RMSE_testing</strong></a>(self, predictionMatrix)</dt><dd><tt>RMSE&nbsp;on&nbsp;testing&nbsp;dataset<br>
+&nbsp;<br>
+Parameters:<br>
+predictionMatrix&nbsp;(numpy&nbsp;matrix):&nbsp;The&nbsp;predicted&nbsp;matrix.&nbsp;Must&nbsp;be&nbsp;the&nbsp;same&nbsp;shape&nbsp;as&nbsp;matrix_np</tt></dd></dl>
+
+<dl><dt><a name="Dataset-RMSE_training"><strong>RMSE_training</strong></a>(self, predictionMatrix)</dt><dd><tt>RMSE&nbsp;on&nbsp;training<br>
+Parameters:<br>
+predictionMatrix&nbsp;(numpy&nbsp;matrix):&nbsp;The&nbsp;predicted&nbsp;matrix.&nbsp;Must&nbsp;be&nbsp;the&nbsp;same&nbsp;shape&nbsp;as&nbsp;matrix_np</tt></dd></dl>
+
+<dl><dt><a name="Dataset-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="Dataset-get_spearman_coef"><strong>get_spearman_coef</strong></a>(self, predictionMatrix)</dt><dd><tt>Calculate&nbsp;the&nbsp;average&nbsp;spearman&nbsp;coefficient&nbsp;over&nbsp;all&nbsp;users<br>
+&nbsp;<br>
+Parameters:<br>
+predictionMatrix&nbsp;(numpy&nbsp;matrix):&nbsp;The&nbsp;predicted&nbsp;matrix.&nbsp;Must&nbsp;be&nbsp;the&nbsp;same&nbsp;shape&nbsp;as&nbsp;matrix_np</tt></dd></dl>
+
+<dl><dt><a name="Dataset-get_train_matrix"><strong>get_train_matrix</strong></a>(self)</dt><dd><tt>Read&nbsp;the&nbsp;matrix.csv&nbsp;to&nbsp;a&nbsp;numpy&nbsp;matrix</tt></dd></dl>
+
+<dl><dt><a name="Dataset-get_train_test_df"><strong>get_train_test_df</strong></a>(self)</dt><dd><tt>Read&nbsp;the&nbsp;training&nbsp;and&nbsp;testing&nbsp;CSVs&nbsp;as&nbsp;Pandas&nbsp;Dataframe</tt></dd></dl>
+
+<dl><dt><a name="Dataset-precision_at_top_k"><strong>precision_at_top_k</strong></a>(self, k, predictionMatrix)</dt><dd><tt>Calculate&nbsp;precision&nbsp;at&nbsp;top&nbsp;k&nbsp;averaging&nbsp;over&nbsp;all&nbsp;users<br>
+&nbsp;<br>
+Parameters:<br>
+predictionMatrix&nbsp;(numpy&nbsp;matrix):&nbsp;The&nbsp;predicted&nbsp;matrix.&nbsp;Must&nbsp;be&nbsp;the&nbsp;same&nbsp;shape&nbsp;as&nbsp;matrix_np</tt></dd></dl>
+
+<dl><dt><a name="Dataset-print_metrics"><strong>print_metrics</strong></a>(self, predictionMatrix)</dt><dd><tt>Calculate&nbsp;the&nbsp;training&nbsp;and&nbsp;testing&nbsp;RMSE,&nbsp;Spearman&nbsp;Coefficient&nbsp;and&nbsp;Precision<br>
+at&nbsp;top&nbsp;4<br>
+&nbsp;<br>
+Parameters:<br>
+predictionMatrix&nbsp;(numpy&nbsp;matrix):&nbsp;The&nbsp;predicted&nbsp;matrix.&nbsp;Must&nbsp;be&nbsp;the&nbsp;same&nbsp;shape&nbsp;as&nbsp;matrix_np</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SVD">class <strong>SVD</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#SVD">SVD</a>(matrix)<br>
+&nbsp;<br>
+Class&nbsp;for&nbsp;<a href="#SVD">SVD</a>&nbsp;decomposition<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SVD-__init__"><strong>__init__</strong></a>(self, matrix)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="SVD-decompose"><strong>decompose</strong></a>(self)</dt><dd><tt>Decomposes&nbsp;the&nbsp;matrix&nbsp;into&nbsp;U,&nbsp;sigma&nbsp;and&nbsp;V_T</tt></dd></dl>
+
+<dl><dt><a name="SVD-decompose90"><strong>decompose90</strong></a>(self)</dt><dd><tt>Decompose&nbsp;the&nbsp;matrix&nbsp;into&nbsp;U,&nbsp;sigma&nbsp;and&nbsp;V_T&nbsp;by&nbsp;retaining&nbsp;90%&nbsp;diagonal&nbsp;values</tt></dd></dl>
+
+<dl><dt><a name="SVD-get_predictions"><strong>get_predictions</strong></a>(self, decomposition)</dt><dd><tt>Multiply&nbsp;given&nbsp;decomposition&nbsp;to&nbsp;get&nbsp;the&nbsp;approximate&nbsp;matrix</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-timer"><strong>timer</strong></a> = perf_counter(...)</dt><dd><tt>perf_counter()&nbsp;-&gt;&nbsp;float<br>
+&nbsp;<br>
+Performance&nbsp;counter&nbsp;for&nbsp;benchmarking.</tt></dd></dl>
+</td></tr></table>
+</body></html>
