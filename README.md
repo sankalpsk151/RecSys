@@ -1,5 +1,7 @@
 # Recommender Systems
-
+---
+Authors: Aaditya Rathi, Akshat Oke, Rishi Poddar, Sankalp Kulkarni
+---
 ## Running
 
 Run `python3 util.py` to split the data.
