@@ -87,7 +87,7 @@ def create_matrix(filepath="dataset/train_ratings.csv", dest="dataset/matrix.csv
     # Fill the NaN values with 0
     matrix.fillna(value=0, inplace=True)
     # Save the matrix
-    matrix.to_csv("dataset/matrix_test.csv")
+    matrix.to_csv(dest)
     print(matrix)
 
     # 6040, 3685

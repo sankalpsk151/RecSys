@@ -89,6 +89,7 @@ class CollaborativeWithBaseline(ColabrativeFiltering):
 
 if __name__ == "__main__":
     data = Dataset()
+
     ev = EvaluttionMetrics()
 
     print("======== Collabrative filtering =========")
@@ -110,7 +111,7 @@ if __name__ == "__main__":
     pred_train_df['ratings'] = cf.pred_train
 
     topk = 4
-    print("Spearman is ", ev.spearman_coef(
+    print("Spearman training is ", ev.spearman_coef(
         cf.train_ratings, pred_train_df))
     print("Spearman testing is ", ev.spearman_coef(
         cf.test_ratings, pred_test_df))
@@ -121,6 +122,8 @@ if __name__ == "__main__":
         f"Training precision on top {topk}: {ev.get_precision_on_top_k(cf.train_ratings, pred_train_df, topk)}")
     print(
         f"Test precision on top {topk}: {ev.precision_top_k(cf.test_ratings, pred_test_df, topk)}")
+    print(
+        f"Total precision {topk}: {ev.precision_top_k(data.ratings, pred_test_df, topk)}")
 
     print("================= Collabrative filtering with Baseline ==================")
     cfb = CollaborativeWithBaseline(
@@ -141,7 +144,7 @@ if __name__ == "__main__":
     pred_train_df2['userid'] = cfb.train_ratings['userid']
     pred_train_df2['ratings'] = cfb.pred_train
 
-    print("Spearman is ", ev.spearman_coef(
+    print("Spearman training is ", ev.spearman_coef(
         cf.train_ratings, pred_train_df2))
     print("Spearman testing is ", ev.spearman_coef(
         cf.test_ratings, pred_test_df2))
@@ -154,6 +157,8 @@ if __name__ == "__main__":
         f"Test precision new on top{topk}: {ev.precision_top_k(cfb.test_ratings, pred_test_df2, topk)}")
     print(
         f"Train precision new on top{topk}: {ev.precision_top_k(cfb.train_ratings, pred_test_df2, topk)}")
+    print(
+        f"Total precision {topk}: {ev.precision_top_k(data.ratings, pred_test_df2, topk)}")
 
 
 # top_k = 10

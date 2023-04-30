@@ -12,6 +12,7 @@ class Dataset:
                                                   'userid', 'movieid', 'ratings', 'time'], encoding='latin-1', engine='python', delimiter='::')
         self.get_train_test_df()
         self.get_train_matrix()
+        self.get_test_matrix()
 
     def get_train_test_df(self):
         """Read the training and testing CSVs as Pandas Dataframe"""
@@ -25,12 +26,33 @@ class Dataset:
     def get_train_matrix(self):
         """Read the matrix.csv to a numpy matrix"""
 
-        self.matrix = pd.read_csv("dataset/matrix.csv")
+        self.matrix = pd.read_csv("dataset/matrix_train.csv")
         self.matrix = self.matrix.drop('Unnamed: 0', axis=1)
         self.matrix.columns = self.matrix.columns.astype(int)
         self.movies_map = self.matrix.columns
         self.matrix_np = self.matrix.to_numpy()
+        
+        # To handle generous raters
+        self.bool_mat = np.where(self.matrix_np == 0, False, True)
+        self.user_deviation = np.mean(self.matrix_np, where=self.bool_mat, axis=1)
+        self.user_deviation = np.reshape(self.user_deviation, (self.user_deviation.shape[0], 1))
+        self.matrix_np = np.subtract(self.matrix_np, self.user_deviation, where=self.bool_mat)
 
+        self.movies_d = {}
+        for i in range(len(self.movies_map)):
+            self.movies_d[self.movies_map[i]] = i
+        return self.matrix_np, self.movies_d
+    
+    def get_test_matrix(self):
+        self.matrix_test = pd.read_csv("dataset/matrix_test.csv")
+        self.matrix_test = self.matrix_test.drop('Unnamed: 0', axis=1)
+        self.matrix_test.columns = self.matrix_test.columns.astype(int)
+        self.movies_map_test = self.matrix_test.columns
+        self.matrix_np_test = self.matrix_test.to_numpy()
+
+        self.bool_mat_test = np.where(self.matrix_np_test == 0, False, True)
+        self.matrix_np_test = np.subtract(self.matrix_np_test, self.user_deviation, where=self.bool_mat)
+        
         self.movies_d = {}
         for i in range(len(self.movies_map)):
             self.movies_d[self.movies_map[i]] = i
@@ -60,12 +82,13 @@ class Dataset:
             # Get the index of the movie id
             movie_index = self.movies_d[movie_id]
             # Get the predicted rating
-            predicted_rating = predictionMatrix[user_index][movie_index]
+            predicted_rating = predictionMatrix[user_index][movie_index] + self.user_deviation[user_index]
             # Calculate the error
             error = (rating - predicted_rating)**2
             # Add the error to the total error
             total_error += error
-        return np.sqrt(total_error / len(self.test_df))
+        ans = np.sqrt(total_error / len(self.test_df))
+        return ans[0]
 
     def print_metrics(self, predictionMatrix):
         """
@@ -78,12 +101,12 @@ class Dataset:
         """
         print(f"Training RMSE: {self.RMSE_training(predictionMatrix)}")
         print(f"Testing RMSE: {self.RMSE_testing(predictionMatrix)}")
-        print(
-            f"Spearman Coefficient: {self.get_spearman_coef(predictionMatrix)}")
-        print(
-            f"Precision at top 4: {self.precision_at_top_k(4, predictionMatrix)}")
+        print(f"Train Spearman Coefficient: {self.get_spearman_coef(predictionMatrix, self.matrix_np)}")
+        print(f"Test Spearman Coefficient: {self.get_spearman_coef(predictionMatrix, self.matrix_np_test)}")
+        print(f"Train Precision at top 4: {self.precision_at_top_k(4, predictionMatrix, self.matrix_np)}")
+        print(f"Test Precision at top 4: {self.precision_at_top_k(4, predictionMatrix, self.matrix_np_test)}")
 
-    def get_spearman_coef(self, predictionMatrix):
+    def get_spearman_coef(self, predictionMatrix, matrix_np):
         """Calculate the average spearman coefficient over all users
 
         Parameters:
@@ -91,13 +114,12 @@ class Dataset:
 
         """
 
-        print(self.matrix_np[0].shape)
         total = 0
-        for i in range((self.matrix_np.shape[0])):
-            total += spearman_with_ties(self.matrix_np[i], predictionMatrix[i])
-        return total/self.matrix_np.shape[0]
+        for i in range((matrix_np.shape[0])):
+            total += spearman_with_ties(matrix_np[i], predictionMatrix[i])
+        return total/matrix_np.shape[0]
 
-    def precision_at_top_k(self, k, predictionMatrix):
+    def precision_at_top_k(self, k, predictionMatrix, matrix_np):
         """
         Calculate precision at top k averaging over all users
 
@@ -105,20 +127,20 @@ class Dataset:
         predictionMatrix (numpy matrix): The predicted matrix. Must be the same shape as matrix_np
 
         """
-        def is_relevant(rating):
-            return rating > 3
+        def is_relevant(rating, row_index):
+            return rating >= 3 - self.user_deviation[row_index]
 
         correct_preds = 0
-        for row_index in range(self.matrix_np.shape[0]):
+        for row_index in range(matrix_np.shape[0]):
             local_correct = 0
-            sorted_indices = self.matrix_np[row_index].argsort()[::-1]
+            sorted_indices = matrix_np[row_index].argsort()[::-1]
             for i in range(k):
                 movie_index = sorted_indices[i]
-                if is_relevant(predictionMatrix[row_index][movie_index]):
+                if is_relevant(predictionMatrix[row_index][movie_index], row_index):
                     local_correct += 1
             correct_preds += local_correct/k
 
-        return correct_preds/self.matrix_np.shape[0]
+        return correct_preds/matrix_np.shape[0]
 
 
 class SVD:
@@ -126,7 +148,7 @@ class SVD:
 
     def __init__(self, matrix):
         self.matrix = matrix
-
+        
     def decompose(self):
         """Decomposes the matrix into U, sigma and V_T"""
         return np.linalg.svd(self.matrix, full_matrices=False)
@@ -135,9 +157,9 @@ class SVD:
         """Decompose the matrix into U, sigma and V_T by retaining 90% diagonal values"""
         U, sigma, V_T = np.linalg.svd(self.matrix, full_matrices=False)
         middle_diagonal = (sigma)
-        print(middle_diagonal)
+        # print(middle_diagonal)
         sorted_indices = middle_diagonal.argsort()[::-1]
-        print(sorted_indices)
+        # print(sorted_indices)
         total_sum = (middle_diagonal**2).sum()
         sum = 0
         taken = 0
@@ -235,17 +257,13 @@ class CUR:
         Returns: 
         Approximate matrix after decomposition
         """
-        C, R, W = self.get_C_R_W(3000)
-        # C, R, W = self.get_C_R_W(100)
+        C, R, W = self.get_C_R_W(int(0.9*3000))
 
-        # U = np.linalg.pinv(W)
-        X, sigma, Y_T = SVD(W).decompose90()
-        sigma_r = np.reciprocal(sigma)
-        sigma_r = np.diag(sigma_r)
-        sigma_r = sigma_r.dot(sigma_r)
-        U = Y_T.T @ sigma_r @ X.T
+        U = np.linalg.pinv(W)
         self.U = U
-        self.cur_approx = np.matmul(np.matmul(C, U), R)
+        # print(C.shape, U.shape, R.shape)
+        self.cur_approx = C @ U @ R
+        # self.cur_approx = np.matmul(np.matmul(C, U), R)
         return self.cur_approx
 
 
@@ -257,18 +275,12 @@ if __name__ == '__main__':
     cur = CUR(matrix)
     cur.decompose()
     end = timer()
-    print("Time taken to decompose CUR=", (end-start))
     cur_approx = cur.cur_approx
 
-    # print("Matrix", matrix)
-    # print(cur_approx.shape)
-    # print(cur_approx)
-    # print(cur_approx[-1].mean())
-
     print("-----CUR Normal-----")
+    print("Time: ", (end-start))
     ds.print_metrics(cur_approx)
-    import sys
-    sys.exit()
+
     print("-----CUR 90%-----")
     t0 = timer()
     decompose_90 = cur.decompose90()
@@ -281,22 +293,10 @@ if __name__ == '__main__':
     svd_approx = svd.get_predictions(svd.decompose())
     print("Time: ", timer() - t0)
 
-    # ds.print_metrics(svd_approx)
+    ds.print_metrics(svd_approx)
     print("-----SVD 90%------")
     t0 = timer()
     svd_90_approx = svd.get_predictions(svd.decompose90())
     print("Time: ", timer() - t0)
 
-    # ds.print_metrics(svd_90_approx)
-
-    # print("U", cur.U)
-    # print("Multiplied is", cur_approx)
-
-    # print("Mean squared error with training data")
-    # print(np.sqrt(np.sum((cur_approx - matrix)**2,
-    #       where=matrix != 0) / np.count_nonzero(matrix)))
-
-    # print("Total non zero", np.count_nonzero(matrix))
-    # Convert to dataframe
-    # cur_approx_df = pd.DataFrame(cur_approx, columns=ds.movies_map)
-    # cur_approx_df.to_csv("dataset/cur_approx.csv")
+    ds.print_metrics(svd_90_approx)
