@@ -67,10 +67,12 @@ $U = Y \times \frac{1}{\Sigma^2} \times X^{T}$
 ## How to Run the code?
 
 Run `python3 util.py` to split the data.
+
 Run `python3 cur.py` to create the matrix from csv.
 
-`python3 main.py` For collaborative and collaborative with baseline.
-`python3 CUR_all.py` For CUR and SVD decompositions.
+Run `python3 main.py` for collaborative and collaborative with baseline.
+
+Run `python3 CUR_all.py` for CUR and SVD decompositions.
 
 
 ## Metrics
