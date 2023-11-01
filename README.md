@@ -75,6 +75,8 @@ Run `python3 main.py` for collaborative and collaborative with baseline.
 
 Run `python3 CUR_all.py` for CUR and SVD decompositions.
 
+Check `main.html` for the documentation of the code.
+
 
 ## Metrics
 
