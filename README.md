@@ -4,7 +4,7 @@ It does comparative analysis of various techniques used in implementing Recommen
 
 ## Dataset
 
-The Dataset used was taken from MovieLens. These files contain 1,000,209 anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000.
+The Dataset used was taken from [1M MovieLens](https://grouplens.org/datasets/movielens/1m/). These files contain 1,000,209 anonymous ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000.
 
 This was divided into training and testing dataset of 80-20 percent.
 
@@ -26,11 +26,11 @@ We used k=15, that is, the top 15 similar users are taken into consideration for
 
 Rating is predicted using the global mean and the movie deviation in addition to the collaborative filtering value from above.
 
-$Rating = c.f. + \mu_{global} + b_{movie}$
+$$Rating = c.f. + \mu_{global} + b_{movie}$$
 
 where $c.f.$ is collaborative filtering prediction and $b_{movie}$ is the deviation of the movie.
 
-$b_{movie} = \mu_{movie} − \mu_{global}$
+$$b_{movie} = \mu_{movie} − \mu_{global}$$
 
 ### 3. SVD
 
@@ -40,14 +40,15 @@ The singular value decomposition decomposes a matrix $A$ into $U \times \Sigma \
 
 We retain 90% of the sum of squares of the diagonal matrix $\Sigma$ and make other elements to zero. The following condition then holds true: 
 
-$\Sigma[i] \geq \Sigma[i + 1] {} \forall i \in \{0, min(m, n)\}$
+$$\Sigma[i] \geq \Sigma[i + 1] {} \forall i \in \{0, min(m, n)\}$$
 
 ### 5. CUR Decomposition
 
 Similar to SVD, the matrix $A$ is decomposed so that 
 
-$A = C \times U \times R$ where
+$$A = C \times U \times R$$ 
 
+where,
 - $C$ has $r$ randomly selected columns of $A$
 - $R$ has $r$ randomly selected rows of $A$
 - $U$ is the pseudo-inverse of the intersection of $C$ and $R$ ($=W$)
@@ -58,11 +59,11 @@ $r$ was selected to be $3,000$ rows/columns.
 
 To find the pseudo-inverse of W, we take the SVD decomposition 
 
-$W = X \times \Sigma \times Y^{T}$
+$$W = X \times \Sigma \times Y^{T}$$
 
-Now take the pseudo-inverse of $\Sigma$, which is just the reciprocals of all non-zero elements (since it is diagonal matrix) after retaining $90\%$ energy. Then,
+Now take the pseudo-inverse of $\Sigma$, which is just the reciprocals of all non-zero elements (since it is diagonal matrix) after retaining 90% energy. Then,
  
-$U = Y \times \frac{1}{\Sigma^2} \times X^{T}$
+$$U = Y \times \frac{1}{\Sigma^2} \times X^{T}$$
 
 ## How to Run the code?
 
